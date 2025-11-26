@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">AEGIS Privacy Suite</string>
+    <string name="app_description">Dual-mode ad and tracker blocker</string>
+    
+    <!-- VPN Mode -->
+    <string name="vpn_service_name">AEGIS VPN</string>
+    <string name="vpn_notification_title">AEGIS Protection Active</string>
+    <string name="vpn_notification_text">Blocking ads and trackers</string>
+    
+    <!-- Modes -->
+    <string name="mode_vpn_dns_only">DNS-Only Mode</string>
+    <string name="mode_vpn_full_firewall">Full Firewall Mode</string>
+    <string name="mode_root_hosts">Root Mode</string>
+    
+    <!-- Actions -->
+    <string name="action_start">Start</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_revert">Revert</string>
+    
+    <!-- Statistics -->
+    <string name="stat_domains_blocked">Domains Blocked</string>
+    <string name="stat_requests_blocked">Requests Blocked</string>
+    <string name="stat_blocklist_count">Active Blocklists</string>
+</resources>
