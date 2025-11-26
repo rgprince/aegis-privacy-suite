@@ -135,13 +135,6 @@ class BlocklistViewModel @Inject constructor(
             }
         }
     }
-                _uiState.value = _uiState.value.copy(
-                    error = e.message,
-                    refreshingSourceId = null
-                )
-            }
-        }
-    }
     
     fun deleteSource(sourceId: String) {
         viewModelScope.launch {
@@ -186,7 +179,9 @@ class BlocklistViewModel @Inject constructor(
                     isApplying = false
                 )
             }
-            
+        }
+    }
+    
     fun addCustomSource(name: String, url: String) {
         viewModelScope.launch {
             try {
@@ -215,16 +210,6 @@ class BlocklistViewModel @Inject constructor(
     
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
-    }
-}
-    }
-    
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
-    }
-    
-    fun dismissSuccessMessage() {
-        _uiState.value = _uiState.value.copy(appliedSuccessfully = false)
     }
 }
 

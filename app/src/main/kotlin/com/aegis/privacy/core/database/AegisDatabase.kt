@@ -20,7 +20,7 @@ import com.aegis.privacy.core.database.entities.*
         FirewallRule::class
     ],
     version = 2,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class AegisDatabase : RoomDatabase() {
     
