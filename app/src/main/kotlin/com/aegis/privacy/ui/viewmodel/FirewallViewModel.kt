@@ -64,17 +64,8 @@ class FirewallViewModel @Inject constructor(
             
             packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                 .filter { app ->
-                    // Filter apps with INTERNET permission
-                    val hasInternet = try {
-                        packageManager.getPackageInfo(
-                            app.packageName,
-                            PackageManager.GET_PERMISSIONS
-                        ).requestedPermissions?.contains(android.Manifest.permission.INTERNET) == true
-                    } catch (e: Exception) {
-                        false
-                    }
-                    
-                    hasInternet && (includeSystem || (app.flags and ApplicationInfo.FLAG_SYSTEM) == 0)
+                    // Show all apps or just non-system apps based on toggle
+                    includeSystem || (app.flags and ApplicationInfo.FLAG_SYSTEM) == 0
                 }
                 .map { app ->
                     val appName = packageManager.getApplicationLabel(app).toString()

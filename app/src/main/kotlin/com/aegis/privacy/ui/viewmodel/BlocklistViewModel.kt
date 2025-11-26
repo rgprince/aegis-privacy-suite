@@ -84,7 +84,15 @@ class BlocklistViewModel @Inject constructor(
             try {
                 val source = database.blocklistSourceDao().getById(sourceId)
                 if (source != null) {
+                    // Update enabled state
                     repository.updateSource(source.copy(enabled = enabled))
+                    
+                    // Auto-download if enabling and has 0 domains
+                    if (enabled && source.domainCount == 0) {
+                        Timber.i("Auto-downloading $sourceId after enabling...")
+                        delay(200) // Brief delay for UI update
+                        refreshSource(sourceId)
+                    }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error toggling source")
