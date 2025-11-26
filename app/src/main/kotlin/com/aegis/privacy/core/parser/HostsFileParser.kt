@@ -21,14 +21,15 @@ import java.io.InputStreamReader
 class HostsFileParser {
     
     companion object {
-        // Regex pattern: IP_ADDRESS HOSTNAME [COMMENT]
-        private val HOSTS_PATTERN = Regex("^\\s*([^#\\s]+)\\s+([^#\\s]+).*$")
+        // FIXED: More flexible regex that handles various formats
+        // Matches: IP whitespace+ DOMAIN [optional comment]
+        private val HOSTS_PATTERN = Regex("^\\s*(\\S+)\\s+(\\S+)")
         
         // Batch size for database inserts
         private const val BATCH_SIZE = 100
         
         // Valid redirection IPs
-        private val VALID_REDIRECTS = setOf("0.0.0.0", "127.0.0.1", "::1")
+        private val VALID_REDIRECTS = setOf("0.0.0.0", "127.0.0.1", "::1", "::")
     }
     
     /**
@@ -75,7 +76,7 @@ class HostsFileParser {
                         validLines++
                     } else {
                         skippedLines++
-                        if (totalLines <= 10) {
+                        if (errors.size < 10) {
                             // Log first few errors for debugging
                             errors.add("Line $totalLines: Invalid format - $trimmed")
                         }
@@ -105,22 +106,28 @@ class HostsFileParser {
      * @return Domain name if valid, null otherwise
      */
     private fun parseLine(line: String): String? {
-        val match = HOSTS_PATTERN.matchEntire(line) ?: return null
+        val match = HOSTS_PATTERN.find(line) ?: return null
         
-        val (redirect, hostname) = match.destructured
+        val redirect = match.groupValues[1]
+        val hostname = match.groupValues[2]
         
-        // Validate redirect IP
+        // Validate redirect IP (must be a blocking IP)
         if (!VALID_REDIRECTS.contains(redirect)) {
             return null
         }
         
-        // Validate hostname
-        if (!isValidHostname(hostname)) {
+        // Skip localhost entries
+        if (hostname == "localhost" || hostname == "localhost.localdomain" || hostname.startsWith("local")) {
             return null
         }
         
-        // Skip localhost entries
-        if (hostname == "localhost" || hostname == "localhost.localdomain") {
+        // Basic hostname validation - must contain a dot and look like a domain
+        if (!hostname.contains('.') || hostname.length > 253) {
+            return null
+        }
+        
+        // Reject obvious invalid patterns
+        if (hostname.contains('*') || hostname.contains('?') || hostname.contains(' ')) {
             return null
         }
         

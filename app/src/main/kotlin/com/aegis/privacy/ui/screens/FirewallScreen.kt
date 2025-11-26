@@ -123,7 +123,7 @@ fun FirewallScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(apps, key = { it.uid }) { app ->
+                    items(apps, key = { it.packageName }) { app ->
                         AppFirewallItem(
                             app = app,
                             onToggleBlock = { viewModel.toggleAppBlock(app) }
