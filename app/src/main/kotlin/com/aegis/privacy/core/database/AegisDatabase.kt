@@ -1,3 +1,5 @@
+package com.aegis.privacy.core.database
+
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
