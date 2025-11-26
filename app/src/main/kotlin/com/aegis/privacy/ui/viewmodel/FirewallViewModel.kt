@@ -62,30 +62,39 @@ class FirewallViewModel @Inject constructor(
         try {
             val rulesMap = rules.associateBy { it.uid }
             
-            packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+            val allApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                 .filter { app ->
                     // Show all apps or just non-system apps based on toggle
                     includeSystem || (app.flags and ApplicationInfo.FLAG_SYSTEM) == 0
                 }
                 .map { app ->
-                    val appName = packageManager.getApplicationLabel(app).toString()
-                    val isSystemApp = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-                    val rule = rulesMap[app.uid]
-                    
-                    AppInfo(
-                        uid = app.uid,
-                        packageName = app.packageName,
-                        appName = appName,
-                        isSystemApp = isSystemApp,
-                        isBlocked = rule?.blocked ?: false
-                    )
+                    try {
+                        val appName = packageManager.getApplicationLabel(app).toString()
+                        val isSystemApp = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                        val rule = rulesMap[app.uid]
+                        
+                        AppInfo(
+                            uid = app.uid,
+                            packageName = app.packageName,
+                            appName = appName,
+                            isSystemApp = isSystemApp,
+                            isBlocked = rule?.blocked ?: false
+                        )
+                    } catch (e: Exception) {
+                        Timber.w(e, "Error loading app: ${app.packageName}")
+                        null
+                    }
                 }
+                .filterNotNull()
                 .filter { app ->
                     query.isBlank() ||
                     app.appName.contains(query, ignoreCase = true) ||
                     app.packageName.contains(query, ignoreCase = true)
                 }
                 .sortedBy { it.appName.lowercase() }
+            
+            // Limit to 100 apps max to prevent crash
+            allApps.take(100)
         } catch (e: Exception) {
             Timber.e(e, "Error loading apps")
             emptyList()

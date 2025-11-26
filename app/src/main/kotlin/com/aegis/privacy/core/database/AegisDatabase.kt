@@ -1,9 +1,9 @@
-package com.aegis.privacy.core.database
-
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aegis.privacy.core.database.dao.*
 import com.aegis.privacy.core.database.entities.*
 
@@ -35,6 +35,22 @@ abstract class AegisDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AegisDatabase? = null
         
+        // Migration from v1 to v2 (adds FirewallRule table)
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create firewall_rules table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS firewall_rules (
+                        uid INTEGER PRIMARY KEY NOT NULL,
+                        packageName TEXT NOT NULL,
+                        appName TEXT NOT NULL,
+                        blocked INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+        
         fun getDatabase(context: Context): AegisDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -42,7 +58,7 @@ abstract class AegisDatabase : RoomDatabase() {
                     AegisDatabase::class.java,
                     "aegis_database"
                 )
-                    .fallbackToDestructiveMigration() // TODO: Implement proper migrations
+                    .addMigrations(MIGRATION_1_2) // Proper migration - data persists!
                     .build()
                 INSTANCE = instance
                 instance
