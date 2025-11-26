@@ -2,6 +2,9 @@ package com.aegis.privacy
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -34,7 +37,7 @@ class AegisApplication : Application() {
         
         if (isFirstLaunch) {
             Timber.i("First launch detected, initializing database...")
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 com.aegis.privacy.util.DatabaseInitializer.initialize(this@AegisApplication)
                 prefs.edit().putBoolean("first_launch", false).apply()
             }

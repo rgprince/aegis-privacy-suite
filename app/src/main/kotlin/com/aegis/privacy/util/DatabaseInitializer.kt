@@ -5,6 +5,7 @@ import com.aegis.privacy.core.database.AegisDatabase
 import com.aegis.privacy.core.database.entities.BlocklistSourceEntity
 import com.aegis.privacy.core.database.entities.StatisticsEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -21,8 +22,8 @@ object DatabaseInitializer {
         
         try {
             // Check if already initialized
-            val existingSources = database.blocklistSourceDao().getAll()
-            if (existingSources.first().isNotEmpty()) {
+            val existingSources = database.blocklistSourceDao().getAll().first()
+            if (existingSources.isNotEmpty()) {
                 Timber.i("Database already initialized, skipping...")
                 return@withContext
             }
